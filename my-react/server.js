@@ -24,7 +24,7 @@ const multer = require('multer');
 const upload = multer({ dest: './upload' })
 app.get('/api/customers', (req, res) => {
   connection.query(
-    "SELECT * FROM CUSTOMER",
+    "SELECT * FROM CUSTOMER WHERE isDelete = 0",
     (err, rows, fields) => {
       res.send(rows);
     }
@@ -35,7 +35,7 @@ app.use("/image", express.static("./upload"))
 
 app.post('/api/customers', upload.single('image'), (req, res) => {
   //null을 쓴 이유는 id값은 데이터베이스에 자동으로 등록 되기 때문이다.
-  let sql = 'INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?)';
+  let sql = 'INSERT INTO CUSTOMER VALUES (null, ?, ?, ?, ?, ?, NOW() ,0)';
   //image라는 변수로 실제로 프로필 이미지에 바이너리 데이터를 서버에 전송 하니까
   //그것을 받아올것임.
   let image = '/image/' + req.file.filename;
@@ -56,45 +56,14 @@ app.post('/api/customers', upload.single('image'), (req, res) => {
     })
 })
 
+app.delete('/api/customers/:id', (req, res) => {
+  let sql = 'UPDATE CUSTOMER SET isDelete = 1 WHERE id = ?';
+  let params = [req.params.id];
+  connection.query(sql, params,
+    (err, rows, fields) => {
+      res.send(rows);
+    })
+})
+
 app.listen(port, () => console.log(`Listening on ${port}`))
 
-
-// app.get('/api/hello', (req, res) => {
-//   res.send({ message: 'Hello Express!' });
-// });
-
-//[
-//  {
-//    'id': 1,
-//    'image': 'https://placeimg.com/64/64/1',
-//    name: '임지섭',
-//    'birthday': 910101,
-//    'gender': '남자',
-//    'job': '대학생'
-//  },
-//  {
-//    'id': 2,
-//    'image': 'https://placeimg.com/64/64/2',
-//    name: '신유라',
-//    'birthday': 913201,
-//    'gender': '여자',
-//    'job': '개발생'
-//  },
-//  {
-//    'id': 3,
-//    'image': 'https://placeimg.com/64/64/3',
-//    name: '김진욱',
-//    'birthday': 9143101,
-//    'gender': '남자',
-//    'job': '엔지니생'
-//  }
-//]
-
-//app.get('/api/customers', (req, res) => {
-//  connection.query(
-//    'SELECT * FROM CUSTOMER',
-//    (err, rows, fields) => {
-//      res.send(rows);
-//    }
-//  )
-//});
