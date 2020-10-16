@@ -2,6 +2,6 @@
 
 게시판 기능 구현
 
-front : react
-backend : express
-db : Rds mysql
+front : react;
+backend : express;
+db : Rds mysql;
